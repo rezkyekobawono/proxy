@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warung Digital AI - Generator Konten UMKM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1200px;
+            min-height: 600px;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+        }
+
+        .sidebar {
+            background: linear-gradient(145deg, #ff6b9d, #c44569);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: white;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .content-area {
+            padding: 40px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .content-header h2 {
+            font-size: 24px;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+
+        .content-header p {
+            color: #636e72;
+            font-size: 16px;
+        }
+
+        .content-cards {
+            display: grid;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .content-card.instagram {
+            border-left-color: #e1306c;
+        }
+
+        .content-card.tiktok {
+            border-left-color: #000000;
+        }
+
+        .content-card.hashtag {
+            border-left-color: #1da1f2;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-header .emoji {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            color: #2d3436;
+            font-weight: 600;
+        }
+
+        .card-content {
+            color: #636e72;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .placeholder-content {
+            font-style: italic;
+            opacity: 0.7;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #ff6b9d;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                margin: 10px;
+                min-height: auto;
+            }
+
+            .sidebar {
+                padding: 30px 20px;
+            }
+
+            .logo h1 {
+                font-size: 24px;
+            }
+
+            .content-area {
+                padding: 30px 20px;
+            }
+
+            .content-header h2 {
+                font-size: 20px;
+            }
+
+            body {
+                align-items: flex-start;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                padding: 20px 15px;
+            }
+
+            .content-area {
+                padding: 20px 15px;
+            }
+
+            .logo h1 {
+                font-size: 20px;
+            }
+
+            .generate-btn {
+                font-size: 16px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>🏪 Warung Digital AI</h1>
+                <p>Generator Konten Cerdas untuk UMKM Indonesia</p>
+            </div>
+            
+            <form id="contentForm">
+                <div class="form-group">
+                    <label for="productName">Nama Produk</label>
+                    <input type="text" id="productName" placeholder="Contoh: Kopi Robusta Premium">
+                </div>
+                
+                <div class="form-group">
+                    <label for="productDesc">Deskripsi Produk</label>
+                    <textarea id="productDesc" placeholder="Ceritakan tentang produk Anda...&#10;Contoh: Kopi robusta pilihan dengan cita rasa yang kuat dan aroma yang menggugah selera. Dipetik langsung dari petani lokal di dataran tinggi Jawa."></textarea>
+                </div>
+                
+                <button type="submit" class="generate-btn">
+                    ✨ Buat Konten!
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Content Area -->
+        <div class="content-area">
+            <div class="content-header">
+                <h2>Konten yang Dihasilkan</h2>
+                <p>Konten marketing siap pakai untuk produk Anda</p>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Sedang membuat konten...</p>
+            </div>
+
+            <div class="content-cards" id="contentCards">
+                <div class="content-card instagram">
+                    <div class="card-header">
+                        <span class="emoji">📸</span>
+                        <h3>Caption Instagram</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="placeholder-content">
+                            Masukkan nama dan deskripsi produk, lalu klik "Buat Konten!" untuk menghasilkan caption Instagram yang menarik.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card tiktok">
+                    <div class="card-header">
+                        <span class="emoji">🎥</span>
+                        <h3>Skrip TikTok</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="placeholder-content">
+                            Skrip video TikTok yang engaging akan muncul di sini setelah Anda mengisi form di sebelah kiri.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card hashtag">
+                    <div class="card-header">
+                        <span class="emoji">🏷️</span>
+                        <h3>Rekomendasi Hashtag</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="placeholder-content">
+                            Hashtag yang relevan dan populer akan ditampilkan di sini untuk meningkatkan jangkauan konten Anda.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('contentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const productName = document.getElementById('productName').value.trim();
+            const productDesc = document.getElementById('productDesc').value.trim();
+            
+            if (!productName || !productDesc) {
+                alert('Mohon isi nama dan deskripsi produk terlebih dahulu!');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('contentCards').style.opacity = '0.5';
+            
+            // Simulate API call
+            setTimeout(() => {
+                generateContent(productName, productDesc);
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('contentCards').style.opacity = '1';
+            }, 2000);
+        });
+        
+        function generateContent(productName, productDesc) {
+            // Generate Instagram Caption
+            const instagramContent = `✨ ${productName} ✨
+
+${productDesc}
+
+Kualitas terbaik langsung dari tangan ahli! 🙌
+
+Yuk, rasakan pengalaman yang berbeda dengan ${productName.toLowerCase()} kami. Dijamin bikin nagih! 😍
+
+#${productName.replace(/\s+/g, '')} #UMKM #ProdukLokal #KualitasTerbaik #Indonesia`;
+
+            // Generate TikTok Script
+            const tiktokContent = `🎬 SKRIP TIKTOK - ${productName}
+
+OPENING (0-3 detik):
+"Hai guys! Kalian udah pernah nyoba ${productName.toLowerCase()} yang satu ini belum?"
+
+HOOK (3-8 detik):
+"Trust me, ini beda banget dari yang lain!"
+
+MAIN CONTENT (8-20 detik):
+- Show produk close-up
+- Highlight keunggulan: "${productDesc.substring(0, 100)}..."
+- Testimonial singkat atau demo penggunaan
+
+CALL TO ACTION (20-30 detik):
+"Yuk cobain sekarang! Link ada di bio ya!"
+"Kalau suka, jangan lupa like dan share! ❤️"
+
+MUSIC: Upbeat trending sound
+EFFECTS: Zoom in pada produk, text overlay untuk highlight`;
+
+            // Generate Hashtags
+            const hashtags = [
+                `#${productName.replace(/\s+/g, '')}`,
+                '#UMKM', '#ProdukLokal', '#Indonesia', '#BuatanIndonesia',
+                '#KualitasTerbaik', '#Viral', '#FYP', '#TrendingNow',
+                '#SmallBusiness', '#LocalPride', '#Berkualitas',
+                '#Rekomendasi', '#MustTry', '#ViralProducts'
+            ];
+            
+            const hashtagContent = `${hashtags.join(' ')}
+
+💡 TIPS PENGGUNAAN HASHTAG:
+• Gunakan 10-15 hashtag per post
+• Mix antara hashtag populer dan niche
+• Buat hashtag khusus untuk brand Anda
+• Update hashtag sesuai trend terkini
+• Gunakan hashtag lokasi untuk jangkauan lokal`;
+
+            // Update content cards
+            document.querySelector('.instagram .card-content').innerHTML = instagramContent.replace(/\n/g, '<br>');
+            document.querySelector('.tiktok .card-content').innerHTML = tiktokContent.replace(/\n/g, '<br>');
+            document.querySelector('.hashtag .card-content').innerHTML = hashtagContent.replace(/\n/g, '<br>');
+        }
+    </script>
+</body>
+</html>
